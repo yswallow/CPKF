@@ -1,4 +1,2 @@
-sample/System Volume Information
-sample/boot_out.txt
-sample/lib/adafruit*
-*.swp
+lib/adafruit_*
+boot_out.txt

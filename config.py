@@ -1,0 +1,11 @@
+TAPPING_TERM = 0.15
+
+MOUSEKEY_CONFIG = {
+    "DELAY": 0.1,
+    "INTERVAL": 0.1,
+    "MAX_SPEED": 30,
+    "TIME_TO_MAX": 10,
+    "WHEEL_MAX_SPEED": 6,
+    "WHEEL_TIME_TO_MAX": 30,
+}
+
