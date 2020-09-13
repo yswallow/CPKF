@@ -8,16 +8,31 @@ from adafruit_hid.keyboard import Keyboard
 from adafruit_hid.keycode import Keycode as KC
 
 from cpkf.key_object import KeyObject
-import usb_hid, supervisor
+import usb_hid
+import supervisor
+import analogio
+import board
+
+batPin = analogio.AnalogIn(board.VOLTAGE_MONITOR)
+def getBatRemain():
+    voltage = batPin.value * 3.3 / 65536 * 2
+    percentage = int( (voltage - 3.7) * 200 )
+    if percentage > 100 :
+        percentage = 100
+    elif percentage < 0 :
+        percentage = 0
+    
+    return percentage
 
 bleHID = bleHIDService()
+batteryService = BatteryService()
  
 device_info = DeviceInfoService(software_revision=adafruit_ble.__version__,
                                 manufacturer="Adafruit Industries")
-advertisement = ProvideServicesAdvertisement(bleHID)
+advertisement = ProvideServicesAdvertisement(device_info, bleHID, batteryService)
 advertisement.appearance = 961
 scan_response = Advertisement()
-scan_response.complete_name = "CircuitPython Keyboard"
+scan_response.complete_name = "CP Keyboard"
  
 ble = adafruit_ble.BLERadio()
 
@@ -30,6 +45,7 @@ class BT_EN(KeyObject):
             print("already connected")
             print(ble.connections)
         
+        batteryService.level = getBatRemain()
         kbd.updateHIDdevice(bleHID.devices)
 
     def release(self, kbd, time):
