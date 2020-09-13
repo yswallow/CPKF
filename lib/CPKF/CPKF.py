@@ -1,6 +1,6 @@
 from adafruit_hid.keyboard import Keyboard
 from adafruit_hid.mouse import Mouse
-import time, usb_hid
+import time, usb_hid, supervisor
 from cpkf.key_object import KeyObject
 
 class CPKFKeyboard:
@@ -14,9 +14,18 @@ class CPKFKeyboard:
         for i in range(len(keymap[0])):
             self.press.append(None)
         
-        self.adakbd = Keyboard(usb_hid.devices)
-        self.mouse = Mouse(usb_hid.devices)
+        usb_status = supervisor.runtime.serial_connected
+        if(usb_status):
+            self.adakbd = Keyboard(usb_hid.devices)
+            self.mouse = Mouse(usb_hid.devices)
     
+    def updateHIDdevice(self, hid_device):
+        if self.adakbd:
+            self.release_all()
+        self.hid_device = hid_device
+        self.adakbd = Keyboard(hid_device)
+        self.mouse = Mouse(hid_device)
+
     def start(self):
         self.scan_method(self)
         
@@ -62,7 +71,10 @@ class CPKFKeyboard:
         # kbd.send()だとmodifierの情報が消える
         self.adakbd.press(kc)
         self.adakbd.release(kc)
-        
+    
+    def release_all(self):
+        self.adakbd.release_all()
+    
     def tick(self, t):
         for k in self.press:
             if isinstance(k,KeyObject):
