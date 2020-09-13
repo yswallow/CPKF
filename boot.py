@@ -13,11 +13,14 @@ force_writable_button.pull = digitalio.Pull.UP
 if(not force_writable_button):
 	storage.remount("/", True)
 else:
-	files = os.listdir("/log");
-	if ("error-output-enable.txt" in files) and not ("error-checked.txt" in files):
-		with open("/log/error-checked.txt", "w") as fp:
-			pass
-	
+	if "log" in os.listdir():
+		files = os.listdir("/log");
+		if ("error-output-enable.txt" in files) and not ("error-checked.txt" in files):
+			with open("/log/error-checked.txt", "w") as fp:
+				pass
+		
+		else:
+			storage.remount("/", True)
 	else:
 		storage.remount("/", True)
 
