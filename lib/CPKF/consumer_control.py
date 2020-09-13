@@ -4,12 +4,17 @@ from cpkf.key_object import KeyObject
 import usb_hid
 
 class VOL(KeyObject):
-    consumer_control = ConsumerControl(usb_hid.devices)
+    try:
+        consumer_control = ConsumerControl(usb_hid.devices)
+    except OSError:
+        consumer_control = None
     
     def __init__(self, code):
         self.code = code
         
     def press(self, kbd, t):
+        if not self.consumer_control:
+            self.consumer_control = ConsumerControl(usb_hid.devices)
         self.consumer_control.send(self.code)
         self.last_exec = t
         self.repeated = False
