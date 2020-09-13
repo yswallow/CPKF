@@ -18,6 +18,9 @@ class CPKFKeyboard:
         if(usb_status):
             self.adakbd = Keyboard(usb_hid.devices)
             self.mouse = Mouse(usb_hid.devices)
+        else:
+            self.adakbd = None
+            self.mouse = None
     
     def updateHIDdevice(self, hid_device):
         if self.adakbd:
@@ -39,6 +42,10 @@ class CPKFKeyboard:
 
 
     def keyPress(self, k):
+        if (self.adakbd is None) and supervisor.runtime.serial_connected:
+            self.adakbd = Keyboard(usb_hid.devices)
+            self.mouse = Mouse(usb_hid.devices)
+        
         if type(k) is int:
             modifier_bit = k>>8
             if modifier_bit:
