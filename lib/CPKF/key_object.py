@@ -19,7 +19,7 @@ def S(keycode):
 
 
 class KeyObject:
-    def __init__():
+    def __init__(self):
         pass
 
     def press(self, kbd, time):
