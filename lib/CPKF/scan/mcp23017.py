@@ -18,8 +18,10 @@ def readkey(device):
     buffer = bytearray(3)
     buffer[0] = 0x12
     with device:
-        device.write(buffer, end=1)
-        device.readinto(buffer, end=2)
+        #device.write(buffer, end=1)
+        #device.readinto(buffer, end=2)
+        device.write_then_readinto(buffer, buffer,
+            out_start=0, out_end=1, in_start=0, in_end=2)
         return buffer[1] << 8 | buffer[0]
 
 
