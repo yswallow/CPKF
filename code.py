@@ -13,6 +13,7 @@ except Exception as err:
     sys.print_exception(err)
     
     try:
+        kbd.release_all();
         with open("/log/error.txt", "w") as fp:
             sys.print_exception(err, fp)
     except OSError as err2:
