@@ -12,6 +12,10 @@ import usb_hid
 import supervisor
 import analogio
 import board
+import _bleio
+import microcontroller
+import time
+import neopixel
 
 batPin = analogio.AnalogIn(board.VOLTAGE_MONITOR)
 def getBatRemain():
@@ -32,35 +36,91 @@ device_info = DeviceInfoService(software_revision=adafruit_ble.__version__,
 advertisement = ProvideServicesAdvertisement(device_info, bleHID, batteryService)
 advertisement.appearance = 961
 scan_response = Advertisement()
-scan_response.complete_name = "CP Keyboard"
+scan_response.complete_name = "CPKB"
  
 ble = adafruit_ble.BLERadio()
+ble._adapter.name = "CircuitPython Keyboard"
+ble._adapter.enabled = False
+
+np = neopixel.NeoPixel(board.NEOPIXEL,1,brightness=0.05)
+
+def disconnectAll():
+    if ble.connected:
+        for connection in ble.connections:
+            connection.disconnect()
+
+
+class BT(KeyObject):
+    def __init__(self, i):
+        super().__init__()
+        self.id = i
+
+        address_bytes = bytearray()
+        with open("/bt_addresses/BT{}.txt".format(i)) as file:
+            line = file.readline()
+            for hex in line.split(":"):
+                address_bytes.append(int("0x"+hex))
+            
+        self.address = _bleio.Address(address_bytes, _bleio.Address.PUBLIC);
+    
+    def press(self, kbd, time):
+        ble._adapter.enabled = True
+        disconnectAll()
+        ble._adapter.connect(self.address, timeout=10)
 
 class BT_EN(KeyObject):
-    def press(self, kbd, time):
-        if not ble.connected:
-            print("advertising")
-            ble.start_advertising(advertisement, scan_response)
-        else:
+    def __init__(self):
+        super().__init__()
+        self.disconnected = True
+        
+    def press(self, kbd, t):
+        if not ble._adapter.enabled:
+            ble._adapter.enabled = True
+            time.sleep(0.2)
+        
+        if ble.connected:
             print("already connected")
             print(ble.connections)
-        
-        batteryService.level = getBatRemain()
-        kbd.updateHIDdevice(bleHID.devices)
+            self.disconnected = False
+            np[0] = 0x0000FF
+        else:
+            print("advertising")
+            ble.start_advertising(advertisement, scan_response=scan_response)
+            self.disconnected = True
 
     def release(self, kbd, time):
-        pass
+        print(ble.connections)
+        
+        if ble.connected and self.disconnected:
+            batteryService.level = getBatRemain()
+            kbd.updateHIDdevice(bleHID.devices)
+            np[0] = 0x0000FF
+            self.disconnected = False
 
     def tick(self, kbd, time):
         pass
 
-
+class BT_CONNECT(KeyObject):
+    def press(self, kbd, t):
+        if not ble._adapter.enabled:
+            ble._adapter.enabled = True
+            time.sleep(0.2)
+        print("searching new pair...")
+        if ble.connected:
+            for connection in ble.connections:
+                connection.disconnect()
+        
+        ble.start_advertising(advertisement, scan_response=scan_response)
+    
 class USB_EN(KeyObject):
     def press(self, kbd, time):
         if(supervisor.runtime.serial_connected):
             kbd.updateHIDdevice(usb_hid.devices)
-            
-            if ble.connected:
-                for connection in ble.connections:
-                    connection.disconnect()
+        
+        if ble._adapter.enabled:
+            disconnectAll()
             ble.stop_advertising()
+            ble._adapter.enabled = False
+            
+        np[0] = 0xFF0000
+
