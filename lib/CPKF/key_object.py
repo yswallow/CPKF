@@ -30,19 +30,66 @@ class KeyObject:
 
     def tick(self, kbd, time):
         pass
+        
+    def force_tick(self, kbd):
+        pass
+            
+    def longPress(self, kbd):
+        pass
 
 class TapPress(KeyObject):
-    pass
+    def press(self, kbd, time):
+        self.t = time
+        self.executed = False
 
+    def release(self, kbd, time):
+        pass
 
+    def tick(self, kbd, time):
+        if( not self.executed and time-self.t > TAPPING_TERM ):
+            self.longPress(kbd)
+            self.executed = True
+    
+    def force_tick(self, kbd):
+        if not self.executed :
+            print("force tick!");
+            self.longPress(kbd)
+            self.executed = True
+            
+    def longPress(self, kbd):
+        pass
+
+class LOA(TapPress):
+    def __init__(self, kc1, kc2):
+        self.kc1 = kc1
+        self.kc2 = kc2
+    
+    def press(self, kbd, time):
+        super().press(kbd, time)
+        self.tap = False
+        
+    def force_tick(self, kbd):
+        if not self.executed :
+            print("send Tap key")
+            kbd.send(self.kc1)
+            self.tap = True
+            self.executed = True
+    
+    def release(self, kbd, time):
+        if self.tap :
+            pass
+        elif self.executed :
+            kbd.keyRelease(self.kc2)
+        else:
+            kbd.send(self.kc1)
+    
+    def longPress(self, kbd):
+        kbd.keyPress(self.kc2)
+    
 class LT(TapPress):
     def __init__(self, layer, kc):
         self.layer = layer
         self.kc = kc
-        self.executed = False
-        
-    def press(self, kbd, time):
-        self.t = time
         self.executed = False
         
     def release(self, kbd, time):
@@ -51,20 +98,15 @@ class LT(TapPress):
         else:
             kbd.keyPress(self.kc)
             kbd.keyRelease(self.kc)
-        
-    def tick(self, kbd, time):
-        if( not self.executed and time-self.t > TAPPING_TERM ):
-            kbd.changeLayer(self.layer)
-            self.executed = True
+
+    def longPress(self, kbd):
+        kbd.changeLayer(self.layer)
+             
 
 class LO(TapPress):
     def __init__(self, kc1, kc2):
         self.kc1 = kc1 #tap
         self.kc2 = kc2 #press
-        
-    def press(self, kbd, time):
-        self.t = time
-        self.executed = False
         
     def release(self, kbd, time):
         if( self.executed ):
@@ -72,10 +114,9 @@ class LO(TapPress):
         else:
             kbd.send(self.kc1)
             
-    def tick(self, kbd, time):
-        if( not self.executed and time-self.t > TAPPING_TERM ):
-            kbd.keyPress(self.kc2)
-            self.executed = True
+    def longPress(self, kbd):
+        kbd.keyPress(self.kc2)
+
 
 class MO(KeyObject):
     def __init__(self, layer):

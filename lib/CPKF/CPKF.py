@@ -2,6 +2,12 @@ from adafruit_hid.keyboard import Keyboard
 from adafruit_hid.mouse import Mouse
 import time, usb_hid, supervisor
 from cpkf.key_object import KeyObject
+try:
+    from config import TAPPING_TERM_FORCE_HOLD
+except:
+    print("TAPPING_TERM_FORCE_HOLD not found.")
+    TAPPING_TERM_FORCE_HOLD = False
+    
 
 class CPKFKeyboard:
     def __init__(self, keymap, scan_method):
@@ -9,12 +15,12 @@ class CPKFKeyboard:
         self.keymap = keymap
         self.currentLayer = 0
         self.layerHistory = [self.currentLayer]
-
+        
         self.press = []
         for i in range(len(keymap[0])):
             self.press.append(None)
         
-        usb_status = supervisor.runtime.serial_connected
+        usb_status = len(usb_hid.devices)
         if(usb_status):
             self.adakbd = Keyboard(usb_hid.devices)
             self.mouse = Mouse(usb_hid.devices)
@@ -22,18 +28,35 @@ class CPKFKeyboard:
             self.adakbd = None
             self.mouse = None
     
-    def updateHIDdevice(self, hid_device):
+    def updateHIDdevice(self, hid_device=None):
         if self.adakbd:
-            self.release_all()
-        self.hid_device = hid_device
-        self.adakbd = Keyboard(hid_device)
-        self.mouse = Mouse(hid_device)
-
+            try:
+                self.release_all()
+            except OSError:
+                pass
+        
+        if hid_device :
+            self.hid_device = hid_device
+        elif supervisor.runtime.serial_connected:
+            self.hid_device = usb_hid.devices
+        
+        print(self.hid_device)
+        if self.hid_device :
+            self.adakbd = Keyboard(self.hid_device)
+            self.mouse = Mouse(self.hid_device)
+            
+            
     def start(self):
+        print( TAPPING_TERM_FORCE_HOLD if "TTFH is True" else "TTFH is False" )
         self.scan_method(self)
         
     def physicalKeypress(self, i):
         if not self.press[i]:
+            if TAPPING_TERM_FORCE_HOLD :
+                for k in self.press:
+                    if isinstance(k, KeyObject):
+                        k.force_tick(self)
+            
             k = self.keymap[self.layerHistory[-1]][i]
             if k:
                 print("Button #%d Pressed" % i)
