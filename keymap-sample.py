@@ -1,5 +1,6 @@
 from adafruit_hid.keycode import Keycode as KC
 from cpkf.key_object import LO, LT, C, S, MO, Alt
+from cpkf.keycode_jp import KeycodeJP as JP
 from cpkf.consumer_control import VOLD, VOLU
 from cpkf.mousekey import MOUSEU, MOUSED, MOUSEL, MOUSER, WHEELU, WHEELD, MOUSELB
 from cpkf.bluetooth_object import BT_EN, USB_EN
@@ -35,9 +36,9 @@ keymap = [ [
             
             #raise = 2
             [
-                None, None, S(KC.GRAVE_ACCENT), S(KC.EQUALS), S(KC.LEFT_BRACKET),
+                JP.BACK_SLASH, JP.PIPE, S(KC.GRAVE_ACCENT), S(KC.EQUALS), S(KC.LEFT_BRACKET),
                     S(KC.RIGHT_BRACKET), S(KC.SEMICOLON), S(KC.QUOTE), S(KC.FORWARD_SLASH), S(KC.BACKSLASH),
-                None, None, KC.GRAVE_ACCENT, KC.EQUALS, KC.LEFT_BRACKET,
+                JP.UNDERBAR, JP.JPYEN, KC.GRAVE_ACCENT, KC.EQUALS, KC.LEFT_BRACKET,
                     KC.RIGHT_BRACKET, KC.SEMICOLON, KC.QUOTE, KC.FORWARD_SLASH, KC.BACKSLASH,
                 None, None, None, None, None, 
                     None, None, None, None, None, 
