@@ -37,8 +37,9 @@ class Scan:
                 self.mcps.append(None)
         
         for mcp in self.mcps:
-            for reg in [0x0C, 0x0D, 0x02, 0x03]:
-                write(mcp, reg, 0xFF)
+            if mcp:
+                for reg in [0x0C, 0x0D, 0x02, 0x03]:
+                    write(mcp, reg, 0xFF)
     
     def scan(self, kbd):
         while(True):
