@@ -11,6 +11,7 @@ try:
         import keymap
         kbd = CPKFKeyboard(keymap=keyboard.layouts(keymap.keymap), scan_method=keyboard.Scan.scan)
     else:
+        import keyboard.default_keymap
         kbd = CPKFKeyboard(keymap=keyboard.layouts(keyboard.default_keymap.keymap), scan_method=keyboard.Scan.scan)
 
     kbd.start()
