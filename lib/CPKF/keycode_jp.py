@@ -39,3 +39,9 @@ class KeycodeJP:
     BACK_SLASH = 0x87
     UNDERSCORE = S(0x87)
     UNDERBAR = S(0x87)
+    
+    KANA = 0x88
+    HENKAN = 0x8A
+    MUHENKAN = 0x8B
+    
+    ZENHAN = 0x35
