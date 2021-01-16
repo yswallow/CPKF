@@ -1,6 +1,6 @@
 from adafruit_hid.keycode import Keycode as KC
 from config import TAPPING_TERM
-
+import supervisor
 
 def _withModifier(modifier, keycode):
     return KC.modifier_bit(modifier) << 8 | keycode
@@ -131,3 +131,16 @@ class MO(KeyObject):
     def tick(self, kbd, time):
         pass
 
+class RELOAD(KeyObject):
+    def __init__(self):
+        super().__init__()
+    
+    def press(self, kbd, time):
+        kbd.release_all()
+        supervisor.reload()
+    
+    def release(self, kbd, time):
+        pass
+    
+    def tick(self, kbd, time):
+        pass
