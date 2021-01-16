@@ -21,13 +21,16 @@ class CPKFKeyboard:
             self.press.append(None)
         
         usb_status = len(usb_hid.devices)
-        if(usb_status):
-            self.adakbd = Keyboard(usb_hid.devices)
-            self.mouse = Mouse(usb_hid.devices)
-        else:
+        try:
+            if(usb_status):
+                self.adakbd = Keyboard(usb_hid.devices)
+                self.mouse = Mouse(usb_hid.devices)
+            else:
+                self.adakbd = None
+                self.mouse = None
+        except OSError:
             self.adakbd = None
             self.mouse = None
-    
     def updateHIDdevice(self, hid_device=None):
         if self.adakbd:
             try:
