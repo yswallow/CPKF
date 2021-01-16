@@ -17,22 +17,33 @@ import microcontroller
 import time
 import neopixel
 
-batPin = analogio.AnalogIn(board.VOLTAGE_MONITOR)
-def getBatRemain():
-    voltage = batPin.value * 3.3 / 65536 * 2
-    percentage = int( (voltage - 3.7) * 200 )
-    if percentage > 100 :
-        percentage = 100
-    elif percentage < 0 :
-        percentage = 0
-    
-    return percentage
 
+if hasattr(board, "VOLTAGE_MONITOR"):
+    batPin = analogio.AnalogIn(board.VOLTAGE_MONITOR)
+else:
+    batPin = None
+
+
+def getBatRemain():
+    if batPin:
+        voltage = batPin.value * 3.3 / 65536 * 2
+        percentage = int( (voltage - 3.7) * 200 )
+        if percentage > 100 :
+            percentage = 100
+        elif percentage < 0 :
+            percentage = 0
+        return percentage
+    else:
+        return 0
+        
 bleHID = bleHIDService()
 batteryService = BatteryService()
  
-device_info = DeviceInfoService(software_revision=adafruit_ble.__version__,
-                                manufacturer="Adafruit Industries")
+device_info = DeviceInfoService(
+                                software_revision=adafruit_ble.__version__,
+                                manufacturer="Adafruit Industries",
+                                hardware_revision="0.0.1",
+                                )
 advertisement = ProvideServicesAdvertisement(device_info, bleHID, batteryService)
 advertisement.appearance = 961
 scan_response = Advertisement()
@@ -42,7 +53,7 @@ ble = adafruit_ble.BLERadio()
 ble.name = "CircuitPython Keyboard"
 #ble._adapter.enabled = False
 
-np = neopixel.NeoPixel(board.NEOPIXEL,1,brightness=0.05)
+np = neopixel.NeoPixel(board.NEOPIXEL,1)
 
 def disconnectAll():
     if ble.connected:
@@ -83,6 +94,8 @@ class BT_EN(KeyObject):
             print(ble.connections)
             self.disconnected = False
             np[0] = 0x0000FF
+        elif ble.advertising:
+            print("already advertising")
         else:
             print("advertising")
             ble.start_advertising(advertisement, scan_response=scan_response)
