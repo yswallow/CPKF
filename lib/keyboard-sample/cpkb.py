@@ -21,3 +21,15 @@ def layouts(keymaps):
 		physical_keymaps.append(layout(*keymap))
 	
 	return physical_keymaps
+	
+def fs_writable():
+    # if you pressed (col0, row0) when booting, you can write firmware.
+    row = digitalio.DigitalInOut(board.P1_00)
+    row.direction = digitalio.Direction.OUTPUT
+    row.value = False
+    time.sleep(0.01)
+    col = digitalio.DigitalInOut(board.P1_13)
+    col.direction = digitalio.Direction.INPUT
+    col.pull = digitalio.Pull.UP
+    
+    return not col.value
