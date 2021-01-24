@@ -47,7 +47,7 @@ class MOUSER(MOUSEKey):
             kbd.mouse.move(x=self.getSpeed(), y=0)
             self.t = time
 
-class WHEELU(MOUSEKey):
+class WHEELU(WHEELKey):
     def tick(self, kbd, time):
         if(time-self.t > MOUSEKEY_CONFIG["INTERVAL"]):
             kbd.mouse.move(wheel=self.getSpeed())
