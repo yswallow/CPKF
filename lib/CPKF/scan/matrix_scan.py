@@ -45,7 +45,6 @@ class Scan:
                         if row.value:
                             kbd.physicalKeyrelease(l)
                         else:
-                            print("Key "+str(l)+" press!");
                             kbd.physicalKeypress(l)
                     
                     col.value = True
@@ -59,9 +58,7 @@ class Scan:
                         l = self.col_length*j+i
                         if col.value:
                             kbd.physicalKeyrelease(l)
-                            pass
                         else:
-                            print("Key "+str(l)+" press!");
                             kbd.physicalKeypress(l)
                     
                     row.value = True
