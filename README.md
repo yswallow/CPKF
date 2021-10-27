@@ -19,4 +19,4 @@
     * if you using non-bluetooth board, DO NOT use/import Bluetooth feature
 
 ## More...
-Document is in [yswallow/CPKF-doc](https://github.com/yswallow/CPKF-doc) (not created yet).
+Document is in [yswallow/CPKF-doc](https://github.com/yswallow/CPKF-doc).
